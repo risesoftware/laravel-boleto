@@ -1691,16 +1691,18 @@ abstract class AbstractBoleto implements BoletoContract
      *
      * @param bool $print
      * @param bool $instrucoes
+     * @param bool $useLayout
      *
      * @return string
      * @throws \Throwable
      */
-    public function renderHTML($print = false, $instrucoes = true)
+    public function renderHTML($print = false, $instrucoes = true, $useLayout = true)
     {
         $html = new Html();
         $html->addBoleto($this);
         !$print || $html->showPrint();
         $instrucoes || $html->hideInstrucoes();
+        !$useLayout || $html->useLayout();
 
         return $html->gerarBoleto();
     }

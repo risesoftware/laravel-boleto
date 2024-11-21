@@ -1,9 +1,10 @@
 <?php
+
 namespace Eduardokum\LaravelBoleto\Boleto\Render;
 
 use Eduardokum\LaravelBoleto\Blade;
 use Eduardokum\LaravelBoleto\Contracts\Boleto\Boleto as BoletoContract;
-use \Eduardokum\LaravelBoleto\Contracts\Boleto\Render\Html as HtmlContract;
+use Eduardokum\LaravelBoleto\Contracts\Boleto\Render\Html as HtmlContract;
 
 class Html implements HtmlContract
 {
@@ -23,6 +24,11 @@ class Html implements HtmlContract
     private $showInstrucoes = true;
 
     /**
+     * @var bool
+     */
+    private $useLayout = false;
+
+    /**
      * @var \Illuminate\View\Factory
      */
     private $blade = null;
@@ -31,12 +37,13 @@ class Html implements HtmlContract
      * @return \Illuminate\View\Factory
      * @throws \Exception
      */
-    private function getBlade() {
+    private function getBlade()
+    {
         if (!is_null($this->blade)) {
             return $this->blade;
         }
         $instance = \Illuminate\Container\Container::getInstance();
-        if (!is_null($instance) && $instance->resolved(\Illuminate\Contracts\View\Factory::class))  {
+        if (!is_null($instance) && $instance->resolved(\Illuminate\Contracts\View\Factory::class)) {
             view()->addNamespace('BoletoHtmlRender', realpath(__DIR__ . '/view/'));
             $this->blade = view();
         } else {
@@ -45,10 +52,10 @@ class Html implements HtmlContract
             $this->blade = $blade->view();
         }
         $blade = $this->blade->getEngineResolver()->resolve('blade')->getCompiler();
-        $blade->directive('php', function($expression) {
+        $blade->directive('php', function ($expression) {
             return $expression ? "<?php {$expression}; ?>" : '<?php ';
         });
-        $blade->directive('endphp', function($expression) {
+        $blade->directive('endphp', function ($expression) {
             return ' ?>';
         });
         return $this->blade;
@@ -83,18 +90,31 @@ class Html implements HtmlContract
         $this->boleto[] = $dados;
         return $this;
     }
+
     /**
      * @return $this
      */
-    public function hideInstrucoes() {
+    public function hideInstrucoes()
+    {
         $this->showInstrucoes = false;
         return $this;
     }
+
     /**
      * @return $this
      */
-    public function showPrint() {
+    public function showPrint()
+    {
         $this->print = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function useLayout()
+    {
+        $this->useLayout = true;
         return $this;
     }
 
@@ -115,11 +135,11 @@ class Html implements HtmlContract
      */
     public function getImagemCodigoDeBarras($codigo_barras)
     {
-        $codigo_barras = (strlen($codigo_barras)%2 != 0 ? '0' : '') . $codigo_barras;
+        $codigo_barras = (strlen($codigo_barras) % 2 != 0 ? '0' : '') . $codigo_barras;
         $barcodes = ['00110', '10001', '01001', '11000', '00101', '10100', '01100', '00011', '10010', '01010'];
         for ($f1 = 9; $f1 >= 0; $f1--) {
             for ($f2 = 9; $f2 >= 0; $f2--) {
-                $f = ($f1*10) + $f2;
+                $f = ($f1 * 10) + $f2;
                 $texto = "";
                 for ($i = 1; $i < 6; $i++) {
                     $texto .= substr($barcodes[$f1], ($i - 1), 1) . substr($barcodes[$f2], ($i - 1), 1);
@@ -127,7 +147,7 @@ class Html implements HtmlContract
                 $barcodes[$f] = $texto;
             }
         }
-        
+
         // Guarda inicial
         $retorno = '<div class="barcode">' .
             '<div class="black thin"></div>' .
@@ -158,9 +178,9 @@ class Html implements HtmlContract
 
         // Final
         return $retorno . '<div class="black large"></div>' .
-        '<div class="white thin"></div>' .
-        '<div class="black thin"></div>' .
-        '</div>';
+            '<div class="white thin"></div>' .
+            '<div class="black thin"></div>' .
+            '</div>';
     }
 
     /**
@@ -180,6 +200,7 @@ class Html implements HtmlContract
             'css' => $this->writeCss(),
             'imprimir_carregamento' => (bool) $this->print,
             'mostrar_instrucoes' => (bool) $this->showInstrucoes,
+            'usar_layout' => (bool) $this->useLayout,
         ])->render();
     }
 
