@@ -152,162 +152,195 @@ abstract class AbstractBoleto implements BoletoContract
      * @var string
      */
     protected $aceite = 'N';
+
     /**
      * Espécie do documento, geralmente DM (Duplicata Mercantil)
      *
      * @var string
      */
     protected $especieDoc = 'DM';
+
     /**
      * Espécie do documento, coódigo para remessa
      *
      * @var array
      */
     protected $especiesCodigo = [];
+
     /**
      * Espécie do documento, coódigo para remessa
      *
      * @var array
      */
     protected $especiesCodigo240 = [];
+
     /**
      * Espécie do documento, coódigo para remessa
      *
      * @var array
      */
     protected $especiesCodigo400 = [];
+
     /**
      * Número do documento
      *
      * @var int
      */
     protected $numeroDocumento;
+
     /**
      * Define o número definido pelo cliente para compor o Nosso Número
      *
      * @var int
      */
     protected $numero;
+
     /**
      * Define o número definido pelo cliente para controle da remessa
      *
      * @var string
      */
     protected $numeroControle;
+
     /**
      * Campo de uso do banco no boleto
      *
      * @var string
      */
     protected $usoBanco;
+
     /**
      * Agência
      *
      * @var string
      */
     protected $agencia;
+
     /**
      * Dígito da agência
      *
      * @var string
      */
     protected $agenciaDv;
+
     /**
      * Conta
      *
      * @var string
      */
     protected $conta;
+
     /**
      * Dígito da conta
      *
      * @var string
      */
     protected $contaDv;
+
     /**
      * Modalidade de cobrança do cliente, geralmente Cobrança Simples ou Registrada
      *
      * @var string
      */
     protected $carteira;
+
     /**
      * Define as carteiras disponíveis para cada banco
      *
      * @var array
      */
     protected $carteiras = [];
+
     /**
      * Define as carteiras disponíveis para cada banco
      *
      * @var array
      */
     protected $carteirasNomes = [];
+
     /**
      * Entidade beneficiario (quem emite o boleto)
      *
      * @var PessoaContract
      */
     protected $beneficiario;
+
     /**
      * Entidade pagadora (de quem se cobra o boleto)
      *
      * @var PessoaContract
      */
     protected $pagador;
+
     /**
      * Entidade sacador avalista
      *
      * @var PessoaContract
      */
     protected $sacadorAvalista;
+
     /**
      * Array com as linhas do demonstrativo (descrição do pagamento)
      *
      * @var array
      */
     protected $descricaoDemonstrativo;
+
     /**
      * Linha de local de pagamento
      *
      * @var string
      */
     protected $localPagamento = 'Pagável em qualquer agência bancária até o vencimento.';
+
     /**
      * Array com as linhas de instruções
      *
      * @var array
      */
     protected $instrucoes = ['Pagar até a data do vencimento.'];
+
     /**
      * Array com as linhas de instruções de impressão
      *
      * @var array
      */
     protected $instrucoes_impressao = [];
+
     /**
      * Localização do logotipo do banco, referente ao diretório de imagens
      *
      * @var string
      */
     protected $logo;
+
     /**
      * Variáveis adicionais.
      *
      * @var array
      */
     public $variaveis_adicionais = [];
+
     /**
      * Cache do campo livre para evitar processamento desnecessário.
      *
      * @var string
      */
     protected $campoLivre;
+
     /**
      * Cache do nosso numero para evitar processamento desnecessário.
      *
      * @var string
      */
     protected $campoNossoNumero;
+
+    /**
+     * Número do documento
+     *
+     * @var string
+     */
+    protected $numeroParcela;
 
     /**
      * Cache da linha digitabel para evitar processamento desnecessário.
@@ -649,10 +682,10 @@ abstract class AbstractBoleto implements BoletoContract
     }
 
     /**
-      * Retorna a data do juros após
-      *
-      * @return \Carbon\Carbon
-      */
+     * Retorna a data do juros após
+     *
+     * @return \Carbon\Carbon
+     */
     public function getDataVencimentoApos()
     {
         return $this->getDataVencimento()->addDays((int) $this->getJurosApos());
@@ -1664,6 +1697,30 @@ abstract class AbstractBoleto implements BoletoContract
     }
 
     /**
+     * Define o campo Número da parcela
+     *
+     * @param  string $numeroParcela
+     *
+     * @return AbstractBoleto
+     */
+    public function setNumeroParcela($numeroParcela)
+    {
+        $this->numeroParcela = $numeroParcela;
+
+        return $this;
+    }
+
+    /**
+     * Retorna o campo Número do parcela
+     *
+     * @return string
+     */
+    public function getNumeroParcela()
+    {
+        return $this->numeroParcela;
+    }
+
+    /**
      * Render PDF
      *
      * @param bool $print
@@ -1736,6 +1793,7 @@ abstract class AbstractBoleto implements BoletoContract
     {
         return array_merge(
             [
+                'numero_parcela' => $this->getNumeroParcela(),
                 'linha_digitavel' => $this->getLinhaDigitavel(),
                 'codigo_barras' => $this->getCodigoBarras(),
                 'beneficiario' => [
@@ -1768,8 +1826,8 @@ abstract class AbstractBoleto implements BoletoContract
                 'juros_apos' => $this->getJurosApos(),
                 'dias_protesto' => $this->getDiasProtesto(),
                 'sacador_avalista' =>
-                    $this->getSacadorAvalista()
-                        ? [
+                $this->getSacadorAvalista()
+                    ? [
                         'nome' => $this->getSacadorAvalista()->getNome(),
                         'endereco' => $this->getSacadorAvalista()->getEndereco(),
                         'bairro' => $this->getSacadorAvalista()->getBairro(),
@@ -1781,7 +1839,7 @@ abstract class AbstractBoleto implements BoletoContract
                         'endereco2' => $this->getSacadorAvalista()->getCepCidadeUf(),
                         'endereco_completo' => $this->getSacadorAvalista()->getEnderecoCompleto(),
                     ]
-                        : [],
+                    : [],
                 'pagador' => [
                     'nome' => $this->getPagador()->getNome(),
                     'endereco' => $this->getPagador()->getEndereco(),

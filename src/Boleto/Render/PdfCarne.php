@@ -4,10 +4,10 @@ namespace Eduardokum\LaravelBoleto\Boleto\Render;
 
 use Eduardokum\LaravelBoleto\Contracts\Boleto\Boleto as BoletoContract;
 use Eduardokum\LaravelBoleto\Util;
+use Illuminate\Support\Str;
 use Exception;
 use TCPDF;
 
-// class PdfCarne extends AbstractPdf implements PdfContract
 class PdfCarne extends TCPDF
 {
     const OUTPUT_STANDARD = 'I';
@@ -76,57 +76,6 @@ class PdfCarne extends TCPDF
      *
      * @return $this
      */
-    protected function instrucoes($i)
-    {
-        // $this->SetFont($this->PadraoFont, '', 8);
-        // if ($this->totalBoletos > 1) {
-        //     $this->SetAutoPageBreak(true);
-        //     $this->SetY(5);
-        //     $this->Cell(30, 10, date('d/m/Y H:i:s'));
-        //     $this->Cell(0, 10, "Boleto " . ($i + 1) . " de " . $this->totalBoletos, 0, 1, 'R');
-        // }
-
-        // $this->SetFont($this->PadraoFont, 'B', 8);
-        // if ($this->showInstrucoes) {
-        //     $this->Cell(0, 5, $this->_('Instruções de Impressão'), 0, 1, 'C');
-        //     $this->Ln(5);
-        //     $this->SetFont($this->PadraoFont, '', 6);
-        //     if (count($this->boleto[$i]->getInstrucoesImpressao()) > 0) {
-        //         $this->listaLinhas($this->boleto[$i]->getInstrucoesImpressao(), 0);
-        //     } else {
-        //         $this->Cell(0, $this->desc, $this->_('- Imprima em impressora jato de tinta (ink jet) ou laser em qualidade normal ou alta (Não use modo econômico).'), 0, 1, 'L');
-        //         $this->Cell(0, $this->desc, $this->_('- Utilize folha A4 (210 x 297 mm) ou Carta (216 x 279 mm) e margens mínimas à esquerda e à direita do formulário.'), 0, 1, 'L');
-        //         $this->Cell(0, $this->desc, $this->_('- Corte na linha indicada. Não rasure, risque, fure ou dobre a região onde se encontra o código de barras.'), 0, 1, 'L');
-        //         $this->Cell(0, $this->desc, $this->_('- Caso não apareça o código de barras no final, clique em F5 para atualizar esta tela.'), 0, 1, 'L');
-        //         $this->Cell(0, $this->desc, $this->_('- Caso tenha problemas ao imprimir, copie a seqüencia numérica abaixo e pague no caixa eletrônico ou no internet banking:'), 0, 1, 'L');
-        //     }
-        //     $this->Ln(4);
-
-        //     $this->SetFont($this->PadraoFont, '', $this->fcel);
-        //     $this->Cell(25, $this->cell, $this->_('Linha Digitável: '), 0, 0);
-        //     $this->SetFont($this->PadraoFont, 'B', $this->fcel);
-        //     $this->Cell(0, $this->cell, $this->_($this->boleto[$i]->getLinhaDigitavel()), 0, 1);
-        //     $this->SetFont($this->PadraoFont, '', $this->fcel);
-        //     $this->Cell(25, $this->cell, $this->_('Número: '), 0, 0);
-        //     $this->SetFont($this->PadraoFont, 'B', $this->fcel);
-        //     $this->Cell(0, $this->cell, $this->_($this->boleto[$i]->getNumero()), 0, 1);
-        //     $this->SetFont($this->PadraoFont, '', $this->fcel);
-        //     $this->Cell(25, $this->cell, $this->_('Valor: '), 0, 0);
-        //     $this->SetFont($this->PadraoFont, 'B', $this->fcel);
-        //     $this->Cell(0, $this->cell, $this->_(Util::nReal($this->boleto[$i]->getValor())), 0, 1);
-        //     $this->SetFont($this->PadraoFont, '', $this->fcel);
-        // }
-
-        // $this->traco('Recibo do Pagador', 4);
-        // return $this;
-    }
-
-
-    /**
-     * @param integer $i
-     *
-     * @return $this
-     */
     protected function logoEmpresa($i)
     {
         $this->Ln(2);
@@ -160,12 +109,10 @@ class PdfCarne extends TCPDF
     protected function Boleto($i)
     {
         $maxW = $this->w - $this->lMargin - $this->rMargin;
-        $maxH = $this->h - $this->tMargin - $this->bMargin;
         $h = 2.5;
         $wCanhoto = $maxW * .2; // coluna 1 canhoto
         $wMiddleMargin = $maxW * .01; // coluna 2 margen meio
         $wBillet = $maxW - $wCanhoto - $wMiddleMargin; // coluna 3 boleto
-
 
         $fontHeader = 5;
         $fontContent = 6.11;
@@ -209,6 +156,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .15, $h, 'Banco', 'LR');
         $this->cell($wBillet * .7, $h, 'Linha Digitável', 'LR');
         $this->ln();
+
         // linha 1 valores
         $this->SetFont($this->PadraoFont, 'B', 15);
         $this->Image(
@@ -218,7 +166,7 @@ class PdfCarne extends TCPDF
             15
         );
         $this->cell($wCanhoto * .5, $h, '', ''); // logo empresa
-        $this->cell($wCanhoto * .5, $h, $this->boleto[$i]->getCodigoBanco(), $bContent,);
+        $this->cell($wCanhoto * .5, $h, $this->boleto[$i]->getCodigoBanco(), $bContent);
         $this->cell($wMiddleMargin, $h, '');
         $this->Image(
             $this->boleto[$i]->getLogoBanco(),
@@ -239,6 +187,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .8, $h, 'Local de Pagamento', $bHeader);
         $this->cell($wBillet * .2, $h, 'Vencimento', $bHeader);
         $this->ln();
+
         // linha 2 valores
         $this->SetFont($this->PadraoFont, 'B', $fontContent);
         $this->cell($wCanhoto * .5, $h, $this->boleto[$i]->getNumeroParcela(), $bContent);
@@ -256,6 +205,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .2, $h, 'CPF/CNPJ', $bHeader);
         $this->cell($wBillet * .2, $h, 'Agência / Cod. Beneficiário', $bHeader);
         $this->ln();
+
         // linha 3 content
         $this->SetFont($this->PadraoFont, 'B', $fontContent);
         $this->cell($wCanhoto, $h, $this->boleto[$i]->getAgenciaCodigoBeneficiario(), $bContent);
@@ -276,6 +226,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .2, $h, 'Data Processamento', $bHeader);
         $this->cell($wBillet * .2, $h, 'Nosso Número', $bHeader);
         $this->ln();
+
         // linha 4 content
         $this->SetFont($this->PadraoFont, 'B', $fontContent);
         $this->cell($wCanhoto, $h, $this->boleto[$i]->getNossoNumeroBoleto(), $bContent);
@@ -300,6 +251,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .2, $h, 'Valor', $bHeader);
         $this->cell($wBillet * .2, $h, '(=) Valor Documento', $bHeader);
         $this->ln();
+
         // linha 5 content
         $this->SetFont($this->PadraoFont, 'B', $fontContent);
         $this->cell($wCanhoto * .5, $h, $this->boleto[$i]->getNumeroDocumento(), $bContent);
@@ -326,6 +278,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .8, $h, $i1, 'LR');
         $this->cell($wBillet * .2, $h, '', $bContent);
         $this->ln();
+
         // linha 7
         $this->SetFont($this->PadraoFont, 'B', $fontHeader);
         $this->cell($wCanhoto, $h, '(-) Desconto / Abatimento', $bHeader);
@@ -403,6 +356,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .8, $h, $this->boleto[$i]->getPagador()->getEnderecoCompleto(), 'LRB');
         $this->cell($wBillet * .2, $h, '', 'LRB');
         $this->ln();
+
         // linha 10 contents
         $this->SetFont($this->PadraoFont, 'B', $fontContent);
         $this->cell($wCanhoto, $h, $this->boleto[$i]->getPagador()->getNome(), $bContent); // pagador
@@ -418,6 +372,7 @@ class PdfCarne extends TCPDF
         $this->cell($wBillet * .8, $h, '', 'L');
         $this->cell($wBillet * .2, $h, '', 'R');
         $this->ln();
+
         // linha 11 contents
         $this->SetFont($this->PadraoFont, 'B', $fontContent);
         $this->cell($wCanhoto, $h, $this->boleto[$i]->getBeneficiario()->getNome(), 'RL');
@@ -448,13 +403,9 @@ class PdfCarne extends TCPDF
             $x = $xBarcode + 1,
             $y = $yBarcode - 7.5,
             $w = 100,
-            $h = $h + 7,
-            // $xres = 1,
-            // $style = '',
-            // $align = 'N'
+            $h = $h + 7
         );
 
-        // $this->Output('a.pdf', 'I');
         return $this;
     }
 
@@ -475,24 +426,13 @@ class PdfCarne extends TCPDF
         if ($texto && $posicaoTexto !== -1) {
             $this->Cell(0, 2, $this->_($texto), 0, 1, $alinhamentoTexto);
         }
-        $this->Cell(0,  2, str_pad('-', $tamanho, ' -', STR_PAD_RIGHT), 0, 1);
+        $this->Cell(0, 2, str_pad('-', $tamanho, ' -', STR_PAD_RIGHT), 0, 1);
         if ($texto && $posicaoTexto === -1) {
             $this->Cell(0, 2, $this->_($texto), 0, 1, $alinhamentoTexto);
         }
         if ($ln2 == 1 || $ln2) {
             $this->Ln($ln2);
         }
-    }
-
-    /**
-     * @param integer $i
-     */
-    protected function codigoBarras($i)
-    {
-        // return $this;
-        // $this->Ln(3);
-        // $this->Cell(0, 15, '', 0, 1, 'L');
-        // $this->i25($this->GetX(), $this->GetY() - 15, $this->boleto[$i]->getCodigoBarras(), 1, 17);
     }
 
     /**
@@ -533,15 +473,6 @@ class PdfCarne extends TCPDF
     /**
      * @return $this
      */
-    public function hideInstrucoes()
-    {
-        // $this->showInstrucoes = false;
-        // return $this;
-    }
-
-    /**
-     * @return $this
-     */
     public function showPrint()
     {
         $this->print = true;
@@ -555,12 +486,12 @@ class PdfCarne extends TCPDF
      * @param null $save_path
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public function gerarBoleto($dest = self::OUTPUT_STANDARD, $save_path = null, $nameFile = null, $orientacao = 'L')
     {
         if ($this->totalBoletos == 0) {
-            throw new \Exception('Nenhum Boleto adicionado');
+            throw new Exception('Nenhum Boleto adicionado');
         }
 
         for ($i = 0; $i < $this->totalBoletos; $i++) {
@@ -578,21 +509,5 @@ class PdfCarne extends TCPDF
         }
 
         return $this;
-    }
-
-    /**
-     * @param $lista
-     * @param integer $pulaLinha
-     *
-     * @return int
-     */
-    protected function listaLinhas($lista, $pulaLinha)
-    {
-        // foreach ($lista as $d) {
-        //     $pulaLinha -= 2;
-        //     $this->MultiCell(0, $this->cell - 0.2, $this->_(preg_replace('/(%)/', '%$1', $d)), 0, 1);
-        // }
-
-        // return $pulaLinha;
     }
 }
