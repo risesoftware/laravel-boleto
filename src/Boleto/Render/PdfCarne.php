@@ -383,7 +383,10 @@ class PdfCarne extends TCPDF
 
         // linha 12
         $this->SetFont($this->PadraoFont, 'B', $fontHeader);
-        $this->cell($wCanhoto, $h, $this->boleto[$i]->getBeneficiario()->getEnderecoCompleto(), 'RL');
+        $x = $this->GetX();
+        $this->MultiCell($wCanhoto, $h, $this->boleto[$i]->getBeneficiario()->getEnderecoCompleto(), 0, 'L', false, 0);
+        $this->SetX($x);
+        $this->cell($wCanhoto, $h, '', 'RL');
         $this->cell($wMiddleMargin, $h, '');
         $this->cell($wBillet * .8, $h, '', 'L');
         $this->cell($wBillet * .2, $h, '', 'R');
