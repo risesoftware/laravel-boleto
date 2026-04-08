@@ -1,5 +1,4 @@
 <?php
-
 namespace Eduardokum\LaravelBoleto\Cnab\Retorno\Cnab400\Banco;
 
 use Eduardokum\LaravelBoleto\Util;
@@ -175,12 +174,19 @@ class Safra extends AbstractRetorno implements RetornoCnab400
     protected function init()
     {
         $this->totais = [
-            'liquidados'  => 0,
-            'entradas'    => 0,
-            'baixados'    => 0,
-            'protestados' => 0,
-            'erros'       => 0,
-            'alterados'   => 0,
+            'qtdTitulos' => 0,
+            'vlrTitulos' => 0,
+            'qtdLiquidados' => 0,
+            'vlrLiquidados' => 0,
+            'qtdEntradas' => 0,
+            'vlrEntradas' => 0,
+            'qtdBaixados' => 0,
+            'vlrBaixados' => 0,
+            'qtdProtestados' => 0,
+            'vlrProtestados' => 0,
+            'qtdAlterados' => 0,
+            'vlrAlterados' => 0,
+            'qtdErros' => 0,
         ];
     }
 
@@ -192,6 +198,7 @@ class Safra extends AbstractRetorno implements RetornoCnab400
      */
     protected function processarHeader(array $header)
     {
+        // dd('x');
         $this->getHeader()
             ->setOperacaoCodigo($this->rem(2, 2, $header))
             ->setOperacao($this->rem(3, 9, $header))
@@ -213,10 +220,11 @@ class Safra extends AbstractRetorno implements RetornoCnab400
      */
     protected function processarDetalhe(array $detalhe)
     {
+
         $d = $this->detalheAtual();
 
-        $d->setCarteira($this->rem(83, 85, $detalhe))
-            ->setNossoNumero($this->rem(86, 94, $detalhe))
+        $d->setCarteira($this->rem(108, 108, $detalhe))
+            ->setNossoNumero($this->rem(63, 71, $detalhe))
             ->setNumeroDocumento($this->rem(117, 126, $detalhe))
             ->setNumeroControle($this->rem(38, 62, $detalhe))
             ->setOcorrencia($this->rem(109, 110, $detalhe))
@@ -224,44 +232,45 @@ class Safra extends AbstractRetorno implements RetornoCnab400
             ->setDataOcorrencia($this->rem(111, 116, $detalhe))
             ->setDataVencimento($this->rem(147, 152, $detalhe))
             ->setDataCredito($this->rem(296, 301, $detalhe))
-            ->setCodigoLiquidacao($this->rem(393, 394, $detalhe))
-            ->setValor(Util::nFloat($this->rem(153, 165, $detalhe) / 100, 2, false))
-            ->setValorTarifa(Util::nFloat($this->rem(176, 188, $detalhe) / 100, 2, false))
-            ->setValorIOF(Util::nFloat($this->rem(215, 227, $detalhe) / 100, 2, false))
-            ->setValorAbatimento(Util::nFloat($this->rem(228, 240, $detalhe) / 100, 2, false))
-            ->setValorDesconto(Util::nFloat($this->rem(241, 253, $detalhe) / 100, 2, false))
-            ->setValorRecebido(Util::nFloat($this->rem(254, 266, $detalhe) / 100, 2, false))
-            ->setValorMora(Util::nFloat($this->rem(267, 279, $detalhe) / 100, 2, false))
-            ->setValorMulta(Util::nFloat($this->rem(280, 292, $detalhe) / 100, 2, false));
+            ->setValor((int) $this->rem(153, 165, $detalhe))
+            ->setValorTarifa((int) $this->rem(176, 188, $detalhe))
+            ->setValorIOF((int) $this->rem(215, 227, $detalhe))
+            ->setValorAbatimento((int) $this->rem(228, 240, $detalhe))
+            ->setValorDesconto((int)$this->rem(241, 253, $detalhe))
+            ->setValorRecebido((int)$this->rem(254, 266, $detalhe))
+            ->setValorMora((int)$this->rem(267, 279, $detalhe))
+            ->setValorMulta((int)$this->rem(280, 292, $detalhe))
+            ->setLinhaRegistro($this->rem(395, 400, $detalhe));
 
-        $msgAdicional = str_split(sprintf('%08s', $this->rem(378, 385, $detalhe)), 2) + array_fill(0, 4, '');
-        if ($d->hasOcorrencia('06', '07', '08', '10', '59')) {
-            $this->totais['liquidados']++;
+        if ($d->hasOcorrencia('05', '06', '07', '08', '15')) {
+            $this->totais['qtdLiquidados']++;
+            $this->totais['vlrLiquidados'] += $d->getValorRecebido();
             $d->setOcorrenciaTipo($d::OCORRENCIA_LIQUIDADA);
-        } elseif ($d->hasOcorrencia('02', '64', '71', '73')) {
-            $this->totais['entradas']++;
+        } elseif ($d->hasOcorrencia('02')) {
+            $this->totais['qtdEntradas']++;
+            $this->totais['vlrEntradas'] += $d->getValor();
             $d->setOcorrenciaTipo($d::OCORRENCIA_ENTRADA);
-        } elseif ($d->hasOcorrencia('05', '09', '47', '72')) {
-            $this->totais['baixados']++;
+        } elseif ($d->hasOcorrencia('09', '10')) {
+            $this->totais['qtdBaixados']++;
+            $this->totais['vlrBaixados'] += $d->getValor();
             $d->setOcorrenciaTipo($d::OCORRENCIA_BAIXADA);
-        } elseif ($d->hasOcorrencia('32')) {
-            $this->totais['protestados']++;
+        } elseif ($d->hasOcorrencia('61')) {
+            $this->totais['qtdProtestados']++;
+            $this->totais['vlrProtestados'] += $d->getValor();
             $d->setOcorrenciaTipo($d::OCORRENCIA_PROTESTADA);
         } elseif ($d->hasOcorrencia('14')) {
-            $this->totais['alterados']++;
+            $this->totais['qtdAlterados']++;
+            $this->totais['vlrAlterados'] += $d->getValor();
             $d->setOcorrenciaTipo($d::OCORRENCIA_ALTERACAO);
-        } elseif ($d->hasOcorrencia('03', '15', '16', '17', '18', '60')) {
-            $this->totais['erros']++;
-            $error = Util::appendStrings(
-                Arr::get($this->rejeicoes, $msgAdicional[0], ''),
-                Arr::get($this->rejeicoes, $msgAdicional[1], ''),
-                Arr::get($this->rejeicoes, $msgAdicional[2], ''),
-                Arr::get($this->rejeicoes, $msgAdicional[3], '')
-            );
-            $d->setError($error);
+        } elseif ($d->hasOcorrencia('03')) {
+            $this->totais['qtdErros']++;
+            $d->setError(Arr::get($this->rejeicoes, $this->rem(87, 88, $detalhe), 'Consulte seu Internet Banking'));
         } else {
             $d->setOcorrenciaTipo($d::OCORRENCIA_OUTROS);
         }
+
+        $this->totais['qtdTitulos']++;
+        $this->totais['vlrTitulos'] += $d->getValor();
 
         return true;
     }
@@ -274,15 +283,31 @@ class Safra extends AbstractRetorno implements RetornoCnab400
      */
     protected function processarTrailer(array $trailer)
     {
-        $this->getTrailer()
-            ->setQuantidadeTitulos((int) $this->rem(18, 25, $trailer) + (int) $this->rem(58, 65, $trailer) + (int) $this->rem(178, 185, $trailer))
-            ->setValorTitulos((float) Util::nFloat($this->rem(221, 234, $trailer) / 100, 2, false))
-            ->setQuantidadeErros((int) $this->totais['erros'])
-            ->setQuantidadeEntradas((int) $this->totais['entradas'])
-            ->setQuantidadeLiquidados((int) $this->totais['liquidados'])
-            ->setQuantidadeBaixados((int) $this->totais['baixados'])
-            ->setQuantidadeAlterados((int) $this->totais['alterados']);
 
-        return true;
+        $totais = $this->getTrailer()
+            ->setQuantidadeTitulos((int) $this->totais['qtdTitulos'])
+            ->setQuantidadeLiquidados((int) $this->totais['qtdLiquidados'])
+            ->setQuantidadeEntradas((int) $this->totais['qtdEntradas'])
+            ->setQuantidadeBaixados((int) $this->totais['qtdBaixados'])
+            ->setQuantidadeAlterados((int) $this->totais['qtdAlterados'])
+            ->setQuantidadeConfirmacaoInstrucaoProtestos((int) $this->totais['qtdProtestados'])
+            ->setQuantidadeErros((int) $this->totais['qtdErros']);
+
+        if ($this->usandoCentavos) {
+            $totais->setValorTitulos((int) $this->totais['vlrTitulos'])
+                    ->setValorLiquidados((int) $this->totais['vlrLiquidados'])
+                    ->setValorEntradas((int) $this->totais['vlrEntradas'])
+                    ->setValorBaixados((int) $this->totais['vlrBaixados'])
+                    ->setValorAlterados((int) $this->totais['vlrAlterados'])
+                    ->setValorConfirmacaoInstrucaoProtestos((int) $this->totais['vlrProtestados']);
+        } else {
+            $totais->setValorTitulos((float) Util::nFloat($this->totais['vlrTitulos'] / 100, 2, false))
+                    ->setValorLiquidados((float) Util::nFloat($this->totais['vlrLiquidados'] / 100, 2, false))
+                    ->setValorEntradas((float) Util::nFloat($this->totais['vlrEntradas'] / 100, 2, false))
+                    ->setValorBaixados((float) Util::nFloat($this->totais['vlrBaixados'] / 100, 2, false))
+                    ->setValorAlterados((float) Util::nFloat($this->totais['vlrAlterados'] / 100, 2, false))
+                    ->setValorConfirmacaoInstrucaoProtestos((float) Util::nFloat($this->totais['vlrProtestados'] / 100, 2, false));
+        }
     }
+
 }
