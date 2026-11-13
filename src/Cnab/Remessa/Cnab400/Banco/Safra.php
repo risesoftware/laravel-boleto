@@ -97,7 +97,10 @@ class Safra extends AbstractRemessa implements RemessaContract
     public function addBoleto(BoletoContract $boleto)
     {
         $this->iniciaDetalhe();
-        $this->add(1, 1, '1');
+
+        $tipoRegistro = '1';
+
+        $this->add(1, 1, $tipoRegistro);
         $this->add(2, 3, strlen(Util::onlyNumbers($this->getBeneficiario()->getDocumento())) == 14 ? '02' : '01');
         $this->add(4, 17, Util::formatCnab('9L', $this->getBeneficiario()->getDocumento(), 14));
         $this->add(18, 22, Util::formatCnab('9', $this->getAgencia(), 5));
@@ -169,8 +172,10 @@ class Safra extends AbstractRemessa implements RemessaContract
             $this->add(206, 211, $boleto->getDataVencimento()->format('dmy')); // Data da multa
             $this->add(212, 215, Util::formatCnab('9', Util::nFloat($boleto->getMulta()), 4));
             $this->add(216, 218, '000');
-        } else {
-            $this->add(206, 218, Util::formatCnab('9', 0, 13));
+        }
+
+        if ($tipoRegistro == '6' && $boleto->getAbatimento() > 0) {
+            $this->add(206, 218, Util::formatCnab('9', $boleto->getAbatimento(), 13));
         }
 
         $this->add(219, 220, strlen(Util::onlyNumbers($boleto->getPagador()->getDocumento())) == 14 ? '02' : '01');

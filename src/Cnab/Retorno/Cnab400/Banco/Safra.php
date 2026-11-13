@@ -199,7 +199,6 @@ class Safra extends AbstractRetorno implements RetornoCnab400
      */
     protected function processarHeader(array $header)
     {
-        // dd('x');
         $this->getHeader()
             ->setOperacaoCodigo($this->rem(2, 2, $header))
             ->setOperacao($this->rem(3, 9, $header))
