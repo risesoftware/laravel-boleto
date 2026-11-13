@@ -1,4 +1,5 @@
 <?php
+
 namespace Eduardokum\LaravelBoleto\Cnab\Retorno\Cnab400\Banco;
 
 use Eduardokum\LaravelBoleto\Util;
@@ -232,15 +233,27 @@ class Safra extends AbstractRetorno implements RetornoCnab400
             ->setDataOcorrencia($this->rem(111, 116, $detalhe))
             ->setDataVencimento($this->rem(147, 152, $detalhe))
             ->setDataCredito($this->rem(296, 301, $detalhe))
-            ->setValor((int) $this->rem(153, 165, $detalhe))
-            ->setValorTarifa((int) $this->rem(176, 188, $detalhe))
-            ->setValorIOF((int) $this->rem(215, 227, $detalhe))
-            ->setValorAbatimento((int) $this->rem(228, 240, $detalhe))
-            ->setValorDesconto((int)$this->rem(241, 253, $detalhe))
-            ->setValorRecebido((int)$this->rem(254, 266, $detalhe))
-            ->setValorMora((int)$this->rem(267, 279, $detalhe))
-            ->setValorMulta((int)$this->rem(280, 292, $detalhe))
             ->setLinhaRegistro($this->rem(395, 400, $detalhe));
+
+        if ($this->usandoCentavos) {
+            $d->setValor((int) $this->rem(153, 165, $detalhe))
+                ->setValorTarifa((int) $this->rem(176, 188, $detalhe))
+                ->setValorIOF((int) $this->rem(215, 227, $detalhe))
+                ->setValorAbatimento((int) $this->rem(228, 240, $detalhe))
+                ->setValorDesconto((int)$this->rem(241, 253, $detalhe))
+                ->setValorRecebido((int)$this->rem(254, 266, $detalhe))
+                ->setValorMora((int)$this->rem(267, 279, $detalhe))
+                ->setValorMulta((int)$this->rem(280, 292, $detalhe));
+        } else {
+            $d->setValor((float) Util::nFloat($this->rem(153, 165, $detalhe), 2, false) / 100)
+                ->setValorTarifa((float) Util::nFloat($this->rem(176, 188, $detalhe), 2, false) / 100)
+                ->setValorIOF((float) Util::nFloat($this->rem(215, 227, $detalhe), 2, false) / 100)
+                ->setValorAbatimento((float) Util::nFloat($this->rem(228, 240, $detalhe), 2, false) / 100)
+                ->setValorDesconto((float) Util::nFloat($this->rem(241, 253, $detalhe), 2, false) / 100)
+                ->setValorRecebido((float) Util::nFloat($this->rem(254, 266, $detalhe), 2, false) / 100)
+                ->setValorMora((float) Util::nFloat($this->rem(267, 279, $detalhe), 2, false) / 100)
+                ->setValorMulta((float) Util::nFloat($this->rem(280, 292, $detalhe), 2, false) / 100);
+        }
 
         if ($d->hasOcorrencia('05', '06', '07', '08', '15')) {
             $this->totais['qtdLiquidados']++;
@@ -309,5 +322,4 @@ class Safra extends AbstractRetorno implements RetornoCnab400
                     ->setValorConfirmacaoInstrucaoProtestos((float) Util::nFloat($this->totais['vlrProtestados'] / 100, 2, false));
         }
     }
-
 }
