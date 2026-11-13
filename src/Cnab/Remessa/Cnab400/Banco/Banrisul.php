@@ -88,7 +88,9 @@ class Banrisul extends AbstractRemessa implements RemessaContract
      *
      * @var array
      */
-    protected $carteiras =['1', '3', '4', '5', '6', '7', '8', 'C', 'D', 'E', 'F', 'H', 'I', 'K', 'M', 'N', 'R', 'S', 'X'];
+    protected $carteiras = [
+        '1', '3', '4', '5', '6', '7', '8', 'C', 'D', 'E', 'F', 'H', 'I', 'K', 'M', 'N', 'R', 'S', 'X'
+    ];
 
     /**
      * Caracter de fim de linha
@@ -133,7 +135,7 @@ class Banrisul extends AbstractRemessa implements RemessaContract
 
     public function setTeste($teste)
     {
-        $this->teste = (boolean) $teste;
+        $this->teste = (bool) $teste;
         return $this;
     }
     /**

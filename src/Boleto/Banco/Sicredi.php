@@ -115,16 +115,6 @@ class Sicredi extends AbstractBoleto implements BoletoContract
     }
 
     /**
-     * Retorna se é com registro.
-     *
-     * @return bool
-     */
-    public function isComRegistro()
-    {
-        return $this->registro;
-    }
-
-    /**
      * Define o posto do cliente
      *
      * @param  int $posto
@@ -244,7 +234,7 @@ class Sicredi extends AbstractBoleto implements BoletoContract
             return $this->campoLivre;
         }
 
-        $campoLivre = $this->isComRegistro() ? '1' : '3';
+        $campoLivre = '1';
         $campoLivre .= Util::numberFormatGeral($this->getCarteira(), 1);
         $campoLivre .= $this->getNossoNumero();
         $campoLivre .= Util::numberFormatGeral($this->getAgencia(), 4);
