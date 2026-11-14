@@ -70,6 +70,13 @@ abstract class AbstractBoleto implements BoletoContract
     protected $desconto;
 
     /**
+     * Valor de abatimento concedido no boleto
+     *
+     * @var float
+     */
+    protected $abatimento;
+
+    /**
      * Valor para multa
      *
      * @var float
@@ -1207,6 +1214,30 @@ abstract class AbstractBoleto implements BoletoContract
     }
 
     /**
+     * Define o valor de abatimento do boleto
+     *
+     * @param  string $abatimento
+     *
+     * @return AbstractBoleto
+     */
+    public function setAbatimento($abatimento)
+    {
+        $this->abatimento = Util::nFloat($abatimento, 2, false);
+
+        return $this;
+    }
+
+    /**
+     * Retorna o valor de abatimento do boleto
+     *
+     * @return string
+     */
+    public function getAbatimento()
+    {
+        return Util::nFloat($this->abatimento, 2, false);
+    }
+
+    /**
      * Seta a % de multa
      *
      * @param  float $multa
@@ -1825,6 +1856,7 @@ abstract class AbstractBoleto implements BoletoContract
                 'data_desconto' => $this->getDataDesconto(),
                 'valor' => Util::nReal($this->getValor(), 2, false),
                 'desconto' => Util::nReal($this->getDesconto(), 2, false),
+                'abatimento' => Util::nReal($this->getAbatimento(), 2, false),
                 'multa' => Util::nReal($this->getMulta(), 2, false),
                 'juros' => Util::nReal($this->getJuros(), 2, false),
                 'juros_apos' => $this->getJurosApos(),

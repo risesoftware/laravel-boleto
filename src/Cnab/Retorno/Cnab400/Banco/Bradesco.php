@@ -1,4 +1,5 @@
 <?php
+
 namespace Eduardokum\LaravelBoleto\Cnab\Retorno\Cnab400\Banco;
 
 use Eduardokum\LaravelBoleto\Cnab\Retorno\Cnab400\AbstractRetorno;
@@ -310,15 +311,15 @@ class Bradesco extends AbstractRetorno implements RetornoCnab400
                 ->setValorMora((int) $this->rem(267, 279, $detalhe)) // bradesco usa juros e multa no mesmo campo
                 ->setValorOutrasReceitas((int) $this->rem(280, 292, $detalhe));
         } else {
-            $d->setValor((float) Util::nFloat($this->rem(153, 165, $detalhe)/100, 2, false))
-                ->setValorTarifa((float) Util::nFloat($this->rem(176, 188, $detalhe)/100, 2, false))
-                ->setValorOutrasDespesas((float) Util::nFloat($this->rem(189, 201, $detalhe)/100, 2, false))
-                ->setValorIOF((float) Util::nFloat($this->rem(215, 227, $detalhe)/100, 2, false))
-                ->setValorAbatimento((float) Util::nFloat($this->rem(228, 240, $detalhe)/100, 2, false))
-                ->setValorDesconto((float) Util::nFloat($this->rem(241, 253, $detalhe)/100, 2, false))
-                ->setValorRecebido((float) Util::nFloat($this->rem(254, 266, $detalhe)/100, 2, false))
-                ->setValorMora((float) Util::nFloat($this->rem(267, 279, $detalhe)/100, 2, false)) // bradesco usa juros e multa no mesmo campo
-                ->setValorOutrasReceitas((float) Util::nFloat($this->rem(280, 292, $detalhe)/100, 2, false));
+            $d->setValor((float) Util::nFloat($this->rem(153, 165, $detalhe) / 100, 2, false))
+                ->setValorTarifa((float) Util::nFloat($this->rem(176, 188, $detalhe) / 100, 2, false))
+                ->setValorOutrasDespesas((float) Util::nFloat($this->rem(189, 201, $detalhe) / 100, 2, false))
+                ->setValorIOF((float) Util::nFloat($this->rem(215, 227, $detalhe) / 100, 2, false))
+                ->setValorAbatimento((float) Util::nFloat($this->rem(228, 240, $detalhe) / 100, 2, false))
+                ->setValorDesconto((float) Util::nFloat($this->rem(241, 253, $detalhe) / 100, 2, false))
+                ->setValorRecebido((float) Util::nFloat($this->rem(254, 266, $detalhe) / 100, 2, false))
+                ->setValorMora((float) Util::nFloat($this->rem(267, 279, $detalhe) / 100, 2, false)) // bradesco usa juros e multa no mesmo campo
+                ->setValorOutrasReceitas((float) Util::nFloat($this->rem(280, 292, $detalhe) / 100, 2, false));
         }
 
         $msgAdicional = str_split(sprintf('%08s', $this->rem(319, 328, $detalhe)), 2) + array_fill(0, 5, '');

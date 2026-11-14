@@ -1,4 +1,5 @@
 <?php
+
 namespace Eduardokum\LaravelBoleto\Cnab\Remessa\Cnab400\Banco;
 
 use Carbon\Carbon;
@@ -154,10 +155,6 @@ class Sicredi extends AbstractRemessa implements RemessaContract
     public function addBoleto(BoletoContract $boleto)
     {
         $this->boletos[] = $boleto;
-        if (!$boleto->isComRegistro()) {
-            return $this;
-        }
-
         $this->iniciaDetalhe();
 
         $this->add(1, 1, '1');
@@ -226,7 +223,11 @@ class Sicredi extends AbstractRemessa implements RemessaContract
         $this->add(193, 194, '00');
         $this->add(195, 196, '00');
         $this->add(197, 205, Util::formatCnab('9', 0, 9));
-        $this->add(206, 218, Util::formatCnab('9', 0, 13, 2));
+        if ($this->usandoCentavos) {
+            $this->add(206, 218, Util::formatCnab('9', (int) $boleto->getAbatimento(), 13));
+        } else {
+            $this->add(206, 218, Util::formatCnab('9', $boleto->getAbatimento(), 13, 2));
+        }
         $this->add(219, 219, strlen(Util::onlyNumbers($boleto->getPagador()->getDocumento())) == 14 ? '2' : '1');
         $this->add(220, 220, '0');
         $this->add(221, 234, Util::formatCnab('9L', $boleto->getPagador()->getDocumento(), 14));

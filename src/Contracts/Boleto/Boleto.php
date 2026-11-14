@@ -135,6 +135,11 @@ interface Boleto
     /**
      * @return mixed
      */
+    public function getAbatimento();
+
+    /**
+     * @return mixed
+     */
     public function getMulta();
 
     /**

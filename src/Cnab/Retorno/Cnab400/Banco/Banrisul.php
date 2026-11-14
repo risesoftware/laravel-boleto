@@ -219,9 +219,8 @@ class Banrisul extends AbstractRetorno implements RetornoCnab400
                 ->setValorAbatimento((float) Util::nFloat($this->rem(228, 240, $detalhe) / 100, 2, false))
                 ->setValorDesconto((float) Util::nFloat($this->rem(241, 253, $detalhe) / 100, 2, false))
                 ->setValorRecebido((float) Util::nFloat($this->rem(254, 266, $detalhe) / 100, 2, false))
-                ->setValorMora((float) Util::nFloat($this->rem(267, 279, $detalhe) / 100, 2, false))
-                ->setValorMora((float) Util::nFloat($this->rem(267, 279, $detalhe)/100, 2, false)) // banrisul usa juros e multa no mesmo campo
-                ->setValorOutrasReceitas((float) Util::nFloat($this->rem(280, 292, $detalhe)/100, 2, false));
+                ->setValorMora((float) Util::nFloat($this->rem(267, 279, $detalhe) / 100, 2, false)) // banrisul usa juros e multa no mesmo campo
+                ->setValorOutrasReceitas((float) Util::nFloat($this->rem(280, 292, $detalhe) / 100, 2, false));
         }
 
         /**
